@@ -12,7 +12,9 @@ router.get("/posts", async (req, res) => {
   const posts = await Post.find({}).exec();
 
   if (!posts.length)
-    return res.status(400).json({ message: "게시글 조회에 실패하였습니다." });
+    return res
+      .status(400)
+      .json({ errorMessage: "게시글 조회에 실패하였습니다." });
 
   posts.sort((a, b) => Number(b.createdAt) - Number(a.createdAt));
   const postsWithoutPasswords = [];
@@ -46,7 +48,7 @@ router.post("/posts", authMiddleware, async (req, res) => {
     !req.body.hasOwnProperty("content")
   ) {
     return res.status(412).json({
-      message: "데이터 형식이 올바르지 않습니다.",
+      errorMessage: "데이터 형식이 올바르지 않습니다.",
     });
   }
 
@@ -60,7 +62,7 @@ router.post("/posts", authMiddleware, async (req, res) => {
   }
 
   // content의 형식이 비정상적인 경우
-  if (content === "") {
+  if (content === "" || typeof content !== "string") {
     return res
       .status(412)
       .json({ errorMessage: "게시글 내용의 형식이 일치하지 않습니다." });
@@ -85,7 +87,9 @@ router.get("/posts/:postId", async (req, res) => {
     const post = await Post.findOne({ _id: postId }).exec();
 
     if (!post) {
-      return res.status(400).json({ message: "게시글 조회에 실패하였습니다." });
+      return res
+        .status(400)
+        .json({ errorMessage: "게시글 조회에 실패하였습니다." });
     }
 
     const postWithoutPassword = {
@@ -99,7 +103,9 @@ router.get("/posts/:postId", async (req, res) => {
     };
     res.status(200).json({ post: postWithoutPassword });
   } catch (e) {
-    return res.status(400).json({ message: "게시글 조회에 실패하였습니다." });
+    return res
+      .status(400)
+      .json({ errorMessage: "게시글 조회에 실패하였습니다." });
   }
 });
 
@@ -116,7 +122,9 @@ router.put("/posts/:postId", authMiddleware, async (req, res) => {
 
     // post가 없는 경우
     if (!post) {
-      return res.status(404).json({ message: "게시글이 존재하지 않습니다." });
+      return res
+        .status(404)
+        .json({ errorMessage: "게시글이 존재하지 않습니다." });
     }
 
     // 현재 userId와 post의 userId가 일치하지 않는 경우
@@ -136,7 +144,7 @@ router.put("/posts/:postId", authMiddleware, async (req, res) => {
     ) {
       return res
         .status(412)
-        .json({ message: "데이터 형식이 올바르지 않습니다." });
+        .json({ errorMessage: "데이터 형식이 올바르지 않습니다." });
     }
 
     // title의 형식이 비정상적인 경우
@@ -167,7 +175,7 @@ router.put("/posts/:postId", authMiddleware, async (req, res) => {
 
     res.status(200).json({ message: "게시글을 수정하였습니다." });
   } catch (e) {
-    res.status(400).json({ message: "게시글 수정에 실패하였습니다." });
+    res.status(400).json({ errorMessage: "게시글 수정에 실패하였습니다." });
   }
 });
 
@@ -181,7 +189,9 @@ router.delete("/posts/:postId", authMiddleware, async (req, res) => {
     const post = await Post.findOne({ _id: postId });
 
     if (!post) {
-      return res.status(404).json({ message: "게시글이 존재하지 않습니다." });
+      return res
+        .status(404)
+        .json({ errorMessage: "게시글이 존재하지 않습니다." });
     }
 
     if (userId !== post.userId) {
@@ -201,7 +211,9 @@ router.delete("/posts/:postId", authMiddleware, async (req, res) => {
 
     return res.status(200).json({ message: "게시글을 삭제하였습니다." });
   } catch (e) {
-    return res.status(400).json({ message: "게시글 삭제에 실패하였습니다." });
+    return res
+      .status(400)
+      .json({ errorMessage: "게시글 삭제에 실패하였습니다." });
   }
 });
 

@@ -45,7 +45,7 @@ router.get("/posts/:postId/comments", async (req, res) => {
       commentsWithoutPasswords.push(withoutPassword);
     });
 
-    return res.status(200).json({ data: commentsWithoutPasswords });
+    return res.status(200).json({ comments: commentsWithoutPasswords });
   } catch (e) {
     return res
       .status(400)
