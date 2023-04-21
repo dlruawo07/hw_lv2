@@ -80,7 +80,7 @@ router.post("/signup", async (req, res) => {
 // 로그인 API
 router.post("/login", async (req, res) => {
   // req.body로 들어온 값이 2개가 경우
-  // 그 값들이 nickname, password, confirm이 아닌 경우
+  // 그 값들이 nickname, password가 아닌 경우
   if (
     Object.keys(req.body).length !== 2 ||
     !req.body.hasOwnProperty("nickname") ||
@@ -91,7 +91,12 @@ router.post("/login", async (req, res) => {
   const { nickname, password } = req.body;
 
   // nickname, password가 string 타입이 아닌 경우
-  if (typeof nickname !== "string" || typeof password !== "string") {
+  if (
+    typeof nickname !== "string" ||
+    typeof password !== "string" ||
+    nickname === "" ||
+    password === ""
+  ) {
     return res
       .status(400)
       .json({ errorMessage: "요청한 데이터 형식이 올바르지 않습니다." });
@@ -100,7 +105,7 @@ router.post("/login", async (req, res) => {
   const user = await User.findOne({ nickname }).exec();
 
   // user를 찾지 못했거나 password가 일치하지 않은 경우
-  if (!user || user.password !== password) {
+  if (!user || password !== user.password) {
     return res
       .status(412)
       .json({ errorMessage: "닉네임 또는 패스워드를 확인해주세요." });

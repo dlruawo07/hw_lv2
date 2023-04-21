@@ -9,14 +9,13 @@ const authMiddleware = require("../middlewares/auth-middleware");
 //     - 제목, 작성자명(nickname), 작성 날짜를 조회하기
 //     - 작성 날짜 기준으로 내림차순 정렬하기
 router.get("/posts", async (req, res) => {
-  const posts = await Post.find({}).exec();
+  const posts = await Post.find({}).sort("-createdAt").exec();
 
   if (!posts.length)
     return res
       .status(400)
       .json({ errorMessage: "게시글 조회에 실패하였습니다." });
 
-  posts.sort((a, b) => Number(b.createdAt) - Number(a.createdAt));
   const postsWithoutPasswords = [];
 
   posts.forEach((post) => {
@@ -81,9 +80,8 @@ router.post("/posts", authMiddleware, async (req, res) => {
 //     - 제목, 작성자명(nickname), 작성 날짜, 작성 내용을 조회하기
 //     (검색 기능이 아닙니다. 간단한 게시글 조회만 구현해주세요.)
 router.get("/posts/:postId", async (req, res) => {
-  const { postId } = req.params;
-
   try {
+    const { postId } = req.params;
     const post = await Post.findOne({ _id: postId }).exec();
 
     if (!post) {
@@ -113,11 +111,10 @@ router.get("/posts/:postId", async (req, res) => {
 //     - 토큰을 검사하여, 해당 사용자가 작성한 게시글만 수정 가능
 // TODO: 게시글이 정상적으로 수정되지 않았습니다???
 router.put("/posts/:postId", authMiddleware, async (req, res) => {
-  const { userId } = res.locals.user;
-  const { postId } = req.params;
-
   // postId가 유효한 id인지 체크
   try {
+    const { userId } = res.locals.user;
+    const { postId } = req.params;
     const post = await Post.findOne({ _id: postId }).exec();
 
     // post가 없는 경우
@@ -182,10 +179,9 @@ router.put("/posts/:postId", authMiddleware, async (req, res) => {
 // 5. 게시글 삭제 API
 //     - 토큰을 검사하여, 해당 사용자가 작성한 게시글만 삭제 가능
 router.delete("/posts/:postId", authMiddleware, async (req, res) => {
-  const { userId } = res.locals.user;
-  const { postId } = req.params;
-
   try {
+    const { userId } = res.locals.user;
+    const { postId } = req.params;
     const post = await Post.findOne({ _id: postId });
 
     if (!post) {

@@ -10,9 +10,8 @@ const authMiddleware = require("../middlewares/auth-middleware");
 //     - 제목, 작성자명(nickname), 작성 날짜를 조회하기
 //     - 작성 날짜 기준으로 내림차순 정렬하기
 router.get("/posts/:postId/comments", async (req, res) => {
-  const { postId } = req.params;
-
   try {
+    const { postId } = req.params;
     const post = await Post.findOne({ _id: postId }).exec();
 
     if (!post) {
@@ -21,15 +20,15 @@ router.get("/posts/:postId/comments", async (req, res) => {
         .json({ errorMessage: "게시글이 존재하지 않습니다." });
     }
 
-    const comments = await Comment.find({ postId: postId });
+    const comments = await Comment.find({ postId: postId })
+      .sort("-createdAt")
+      .exec();
 
     if (!comments.length) {
       return res
         .status(404)
         .json({ errorMessage: "댓글이 존재하지 않습니다." });
     }
-
-    comments.sort((a, b) => Number(b.createdAt) - Number(a.createdAt));
 
     const commentsWithoutPasswords = [];
 
@@ -58,10 +57,9 @@ router.get("/posts/:postId/comments", async (req, res) => {
 //     - 댓글 내용을 비워둔 채 댓글 작성 API를 호출하면 "댓글 내용을 입력해주세요" 라는 메세지를 return하기
 //     - 댓글 내용을 입력하고 댓글 작성 API를 호출한 경우 작성한 댓글을 추가하기
 router.post("/posts/:postId/comments", authMiddleware, async (req, res) => {
-  const { userId, nickname } = res.locals.user;
-  const { postId } = req.params;
-
   try {
+    const { userId, nickname } = res.locals.user;
+    const { postId } = req.params;
     const post = await Post.findOne({ _id: postId }).exec();
 
     // 댓글을 작성할 게시글이 존재하지 않는 경우
@@ -113,10 +111,9 @@ router.put(
   "/posts/:postId/comments/:commentId",
   authMiddleware,
   async (req, res) => {
-    const { userId } = res.locals.user;
-    const { postId } = req.params;
-
     try {
+      const { userId } = res.locals.user;
+      const { postId } = req.params;
       const post = await Post.findOne({ _id: postId }).exec();
 
       // 댓글을 수정할 게시글이 존재하지 않는 경우
@@ -126,9 +123,8 @@ router.put(
           .json({ errorMessage: "게시글이 존재하지 않습니다." });
       }
 
-      const { commentId } = req.params;
-
       try {
+        const { commentId } = req.params;
         const targetComment = await Comment.findOne({ _id: commentId }).exec();
 
         // 댓글이 존재하지 않는 경우
@@ -203,10 +199,9 @@ router.delete(
   "/posts/:postId/comments/:commentId",
   authMiddleware,
   async (req, res) => {
-    const { userId } = res.locals.user;
-    const { postId } = req.params;
-
     try {
+      const { userId } = res.locals.user;
+      const { postId } = req.params;
       const post = await Post.findOne({ _id: postId }).exec();
 
       // 댓글을 삭제할 게시글이 존재하지 않는 경우
@@ -216,9 +211,8 @@ router.delete(
           .json({ errorMessage: "게시글이 존재하지 않습니다." });
       }
 
-      const { commentId } = req.params;
-
       try {
+        const { commentId } = req.params;
         const targetComment = await Comment.findOne({ _id: commentId }).exec();
 
         // 댓글이 존재하지 않는 경우
